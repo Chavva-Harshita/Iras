@@ -1,0 +1,428 @@
+# Cursor Rules
+
+## Instructions
+
+- Record fixes for mistakes or corrections to avoid repetition in the `Lessons` section.
+- Organize thoughts and plan steps before starting a task in the `Scratchpad` section.
+- Clear old tasks if necessary.
+- Use todo markers for progress tracking:
+  - `[X]` Completed tasks
+    - `[ ]` Pending tasks
+- Update Scratchpad after completing subtasks.
+- Reflect and plan after milestones for better task management.
+- Always refer to Scratchpad before planning the next step.
+
+## Lessons
+
+1. Use `npx shadcn@latest add [component]` instead of `npx shadcn-ui@latest add [component]` when installing Shadcn UI components.
+2. In Next.js 14+, page props params must be typed as a Promise. Example:
+   ```typescript
+   type tParams = Promise<{ id: string }>
+   interface PageProps {
+     params: tParams
+   }
+   ```
+   Then await the params in the component:
+   ```typescript
+   export default async function Page(props: PageProps) {
+     const { id } = await props.params
+   }
+   ```
+3. Use `const session = await auth()` instead of `const session = await getServerSession(authOptions)` for Next.js authentication. The new `auth()` function is the recommended way to get the session in Next.js Auth v5.
+4. When importing `useRouter` from 'next/navigation', the component must be marked as a client component using the `'use client'` directive at the top of the file, as this hook only works on the client side.
+5. IRAS project structure (do not violate):
+   - Existing repo root is the Next.js app; keep using `app/` for the frontend.
+   - Do NOT create a separate `frontend/` folder.
+   - Do NOT put source code inside `public/` (static assets only: images, logos, icons).
+   - Do NOT recreate or delete the existing Next.js scaffold when adding the Spring Boot backend.
+   - Prefer a sibling `backend/` directory at the repo root for Java/Spring Boot.
+
+## Scratchpad
+
+> Planning-only. Do not implement features until a later prompt explicitly starts a numbered phase.
+> Stack from actual repo + `PROMPTS.md`: Next.js App Router frontend at `app/`; Spring Boot + PostgreSQL + Flyway + JPA backend (not present yet); OTP + JWT access + HttpOnly refresh; Razorpay (not Stripe); IRAS branding.
+> Old Scratchpad (Prisma, NextAuth, Stripe, Shadcn, Uploadthing as already done) was **incorrect** relative to `package.json` and has been replaced.
+
+### Phase checklist (mark `[x]` when a later prompt completes the phase)
+
+- [x] Phase 1 — Existing project/setup inspection
+- [x] Phase 2 — Frontend foundation
+- [x] Phase 3 — Backend foundation
+- [ ] Phase 4 — Database setup and schema
+- [ ] Phase 5 — Authentication
+- [ ] Phase 6 — User profile and address management
+- [ ] Phase 7 — Product/catalog management
+- [ ] Phase 8 — Storefront/homepage
+- [ ] Phase 9 — Search and filtering
+- [ ] Phase 10 — Wishlist
+- [ ] Phase 11 — Cart
+- [ ] Phase 12 — Checkout
+- [ ] Phase 13 — Razorpay/payment integration
+- [ ] Phase 14 — Orders and order tracking
+- [ ] Phase 15 — Admin dashboard
+- [ ] Phase 16 — Admin product management
+- [ ] Phase 17 — Admin order management
+- [ ] Phase 18 — Admin customer management
+- [ ] Phase 19 — IRAS branding/UI polish
+- [ ] Phase 20 — Validation and error handling
+- [ ] Phase 21 — Security audit
+- [ ] Phase 22 — Testing
+- [ ] Phase 23 — Docker/containerization
+- [ ] Phase 24 — Production readiness
+- [ ] Phase 25 — Final deployment verification
+
+Kubernetes (`PROMPTS.md` Prompt 24) is **out of scope** until Phases 1–25 are done.
+
+---
+
+### Phase 1 — Existing project/setup inspection `[x]`
+
+- **Objective:** Confirm the real repository layout, stack, and working defaults so later phases extend this project instead of replacing it.
+- **Main tasks:**
+  - Inventory root files (`package.json`, `next.config.ts`, `tsconfig.json`, `app/`, `public/`).
+  - Confirm Next.js 16 / React 19 / Tailwind v4 / App Router.
+  - List what is **absent** (backend, DB, auth, tests, Docker).
+  - Document structure rules: no `frontend/` folder; no source under `public/`.
+- **Files/modules likely involved:** `package.json`, `package-lock.json`, `app/layout.tsx`, `app/page.tsx`, `app/globals.css`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `public/*`, `PROMPTS.md`, `.cursorrules`.
+- **Dependencies:** None (first phase).
+- **Verification/checkpoint:** `npm run dev` still serves the default Next.js page; `npm run lint` runs.
+- **Definition of done:** Written inventory of current vs intended architecture; no feature code added.
+
+---
+
+### Phase 2 — Frontend foundation `[x]`
+
+- **Objective:** Establish IRAS frontend conventions on the existing `app/` tree without building full product pages yet.
+- **Main tasks:**
+  - Keep create-next-app structure; add only foundational pieces: env example for API URL, typed API client stub, shared layout shell (header/footer placeholders), path aliases already `@/*`.
+  - Configure CORS-ready `NEXT_PUBLIC_API_BASE_URL` (or equivalent) pointing at future Spring Boot.
+  - Add UI primitives only when needed (prefer existing Tailwind; add Shadcn later if a later phase requires it).
+  - Do not move the app into `frontend/` or `public/`.
+- **Files/modules likely involved:** `app/layout.tsx`, `app/globals.css`, `app/page.tsx`, new `lib/` or `components/` at repo root (alongside `app/`, not under `public/`), `.env.example`, `next.config.ts`.
+- **Dependencies:** Phase 1.
+- **Verification/checkpoint:** App still builds; placeholder layout renders; API base URL is documented; no backend required yet.
+- **Definition of done:** Stable Next.js foundation, shared layout/types, env contract for the API, default Next branding can remain until Phase 8/19.
+
+---
+
+### Phase 3 — Backend foundation `[x]`
+
+- **Objective:** Add Spring Boot at `backend/` (sibling of `app/`) with base configuration, without replacing the Next.js app.
+- **Main tasks:**
+  - Create Spring Boot project (Maven or Gradle) with web, validation, actuator.
+  - Application properties / profiles (`dev`, `test`).
+  - CORS for the Next.js origin.
+  - Health endpoint; package structure (`config`, `common`, `security` stubs).
+  - PostgreSQL + Flyway + JPA starters wired but schema can wait for Phase 4.
+- **Files/modules likely involved:** `backend/pom.xml` or `backend/build.gradle`, `backend/src/main/java/**`, `backend/src/main/resources/application*.yml`, `backend/.gitignore`.
+- **Dependencies:** Phase 1 (structure rules); Phase 2 (known frontend origin/port).
+- **Verification/checkpoint:** Backend starts; `/actuator/health` (or equivalent) returns UP; Next.js still starts independently.
+- **Definition of done:** Runnable Spring Boot service next to existing Next.js app; no business entities required yet.
+
+---
+
+### Phase 4 — Database setup and schema `[ ]`
+
+- **Objective:** PostgreSQL + Flyway migrations + JPA entities/relationships for IRAS (users, addresses, categories, products, images, inventory, wishlist, cart, orders, payments).
+- **Main tasks:**
+  - Local PostgreSQL (Docker optional here; full compose is Phase 23).
+  - Flyway versioned SQL for tables, indexes, constraints, enums/status columns.
+  - JPA entities and repositories matching migrations (source of truth = Flyway).
+  - Seed strategy for later catalog/admin work (dev-only).
+- **Files/modules likely involved:** `backend/src/main/resources/db/migration/V*.sql`, `backend/**/domain/**`, `backend/**/repository/**`, `application.yml` datasource settings.
+- **Dependencies:** Phase 3.
+- **Verification/checkpoint:** App starts against empty DB and Flyway applies cleanly; schema matches entity graph; no data-loss migrations.
+- **Definition of done:** Repeatable schema in Git; entities compile; repositories can be injected.
+
+---
+
+### Phase 5 — Authentication `[ ]`
+
+- **Objective:** Signup/login, OTP verification, JWT access tokens, HttpOnly refresh cookies, role-aware protected routes (customer vs admin).
+- **Main tasks:**
+  - Auth APIs: register, request/verify OTP, login, refresh, logout.
+  - Password hashing; JWT access token; refresh token store + HttpOnly Secure cookie.
+  - Spring Security filters; CORS credentials.
+  - Next.js auth pages and session handling (cookies via same-site/proxy or documented cross-origin cookie setup). Do **not** default to NextAuth/Stripe from old notes unless a later prompt overrides `PROMPTS.md`.
+- **Files/modules likely involved:** `backend/**/auth/**`, `backend/**/security/**`, `app/(auth)/*` or `app/login`, `app/signup`, `lib/auth.ts`, middleware if used.
+- **Dependencies:** Phases 2–4.
+- **Verification/checkpoint:** Register → OTP → login → access protected API → refresh → logout; unauthenticated access denied.
+- **Definition of done:** Working customer auth with JWT + refresh cookie; admin role flag exists even if admin UI is later.
+
+---
+
+### Phase 6 — User profile and address management `[ ]`
+
+- **Objective:** Authenticated users can view/update profile and CRUD shipping addresses.
+- **Main tasks:**
+  - Profile GET/PATCH (name, phone, email rules).
+  - Address CRUD; default address; validation (required fields, PIN, etc.).
+  - Frontend account/profile and address screens using Phase 2 layout.
+- **Files/modules likely involved:** `backend/**/user/**`, `backend/**/address/**`, `app/account/**` (or similar under `app/`), form components.
+- **Dependencies:** Phase 5.
+- **Verification/checkpoint:** Authenticated user updates profile and addresses; default address persists; other users cannot access these records.
+- **Definition of done:** Profile + addresses APIs and UI complete for a logged-in customer.
+
+---
+
+### Phase 7 — Product/catalog management `[ ]`
+
+- **Objective:** Categories, products, images, inventory/status, and admin-capable CRUD APIs (UI for admin comes in Phase 16).
+- **Main tasks:**
+  - Catalog APIs: list/get product, categories, images, stock/status.
+  - Admin-only write APIs for products/categories (secured by role).
+  - Image storage approach (object storage or `public/` assets for static; no source code in `public/`).
+- **Files/modules likely involved:** `backend/**/product/**`, `backend/**/category/**`, `app` only if thin admin API client; seed data.
+- **Dependencies:** Phases 4–5.
+- **Verification/checkpoint:** Public read of published products; admin can create/update; unpublished hidden from public list.
+- **Definition of done:** Catalog domain and APIs work; storefront UI not required yet.
+
+---
+
+### Phase 8 — Storefront/homepage `[ ]`
+
+- **Objective:** Customer journeys Home → Shop → Collections → Product details using real catalog APIs.
+- **Main tasks:**
+  - Replace default create-next-app homepage with IRAS storefront structure (brand polish is Phase 19).
+  - Header/nav, shop listing, collection/category pages, product detail (images, price, stock, CTA placeholders).
+  - Loading/empty placeholders acceptable until Phase 20.
+- **Files/modules likely involved:** `app/page.tsx`, `app/shop/**`, `app/collections/**`, `app/products/[id]/**`, `components/` storefront.
+- **Dependencies:** Phases 2 and 7.
+- **Verification/checkpoint:** Browse home → category → product with live API data; no auth required for public catalog.
+- **Definition of done:** Navigable storefront wired to catalog APIs.
+
+---
+
+### Phase 9 — Search and filtering `[ ]`
+
+- **Objective:** Product search, category filters, sorting, pagination.
+- **Main tasks:**
+  - Backend query params: `q`, category, price/sort, page/size.
+  - Frontend search bar, filter sidebar, sort, pagination that share listing state.
+- **Files/modules likely involved:** catalog controllers/services, `app/shop/**`, search components.
+- **Dependencies:** Phases 7–8.
+- **Verification/checkpoint:** Search, filter, sort, paginate return correct subsets; empty query handled.
+- **Definition of done:** Listing UX and APIs support search/filter/sort/page.
+
+---
+
+### Phase 10 — Wishlist `[ ]`
+
+- **Objective:** Persist wishlist per user; storefront add/remove/list.
+- **Main tasks:**
+  - Wishlist APIs; unique (user, product); auth required.
+  - Product/listing heart (or equivalent) UI; wishlist page.
+- **Files/modules likely involved:** `backend/**/wishlist/**`, `app/wishlist/**`, product card components.
+- **Dependencies:** Phases 5, 7–8.
+- **Verification/checkpoint:** Add/remove persists across refresh; guest prompted to log in.
+- **Definition of done:** Wishlist backend + frontend complete.
+
+---
+
+### Phase 11 — Cart `[ ]`
+
+- **Objective:** Persistent cart, quantity updates, availability checks, cart UI.
+- **Main tasks:**
+  - Cart APIs: get, add, update qty, remove; reject oversell / inactive products.
+  - Cart page and header cart count; sync after login if a guest cart is in scope (document decision).
+- **Files/modules likely involved:** `backend/**/cart/**`, `app/cart/**`, cart components.
+- **Dependencies:** Phases 5, 7–8 (auth + catalog). Wishlist optional.
+- **Verification/checkpoint:** Qty updates, line totals, stock errors, persistence after reload.
+- **Definition of done:** Reliable cart API + UI with availability checks.
+
+---
+
+### Phase 12 — Checkout `[ ]`
+
+- **Objective:** Address selection, order draft/creation from cart, checkout UI **before** charging payment.
+- **Main tasks:**
+  - Checkout API: select address, snapshot line items, create pending order, lock stock policy (document).
+  - UI: address from Phase 6, order summary, place-order → pending payment state.
+  - Do not complete Razorpay capture here (Phase 13).
+- **Files/modules likely involved:** `backend/**/order/**`, `backend/**/checkout/**`, `app/checkout/**`.
+- **Dependencies:** Phases 6 and 11.
+- **Verification/checkpoint:** Cart converts to pending order with selected address; cart cleared or reserved per documented rule.
+- **Definition of done:** Checkout creates a pending order without requiring a successful payment yet.
+
+---
+
+### Phase 13 — Razorpay/payment integration `[ ]`
+
+- **Objective:** Create Razorpay orders, client checkout, server-side signature verification, mark orders paid/failed.
+- **Main tasks:**
+  - Server: create Razorpay order, verify webhook/signature, idempotent payment records.
+  - Client: Razorpay Checkout.js with order id from backend.
+  - Never trust client-only payment success.
+- **Files/modules likely involved:** `backend/**/payment/**`, checkout success/fail pages, env keys (not committed).
+- **Dependencies:** Phase 12.
+- **Verification/checkpoint:** Test-mode payment success and failure paths; tampered signature rejected; order status updates.
+- **Definition of done:** Verified Razorpay flow updates order/payment records securely.
+
+---
+
+### Phase 14 — Orders and order tracking `[ ]`
+
+- **Objective:** Customer order history, details, and status tracking.
+- **Main tasks:**
+  - List/get my orders; status timeline (placed, paid, packed, shipped, delivered, cancelled as applicable).
+  - Frontend order list + detail pages.
+- **Files/modules likely involved:** `backend/**/order/**`, `app/orders/**`, `app/orders/[id]/**`.
+- **Dependencies:** Phases 12–13.
+- **Verification/checkpoint:** User sees only own orders; statuses match backend after payment.
+- **Definition of done:** Customer order history and tracking UI + APIs.
+
+---
+
+### Phase 15 — Admin dashboard `[ ]`
+
+- **Objective:** Admin home with sales/order/customer/product summary metrics.
+- **Main tasks:**
+  - Admin layout + authz (ADMIN role).
+  - Aggregate APIs: counts, recent orders, revenue (from paid orders).
+  - Dashboard widgets (charts optional; Recharts only if added intentionally).
+- **Files/modules likely involved:** `app/admin/**`, `backend/**/admin/dashboard/**`.
+- **Dependencies:** Phases 5, 7, 14.
+- **Verification/checkpoint:** Non-admin cannot access; admin sees consistent numbers vs DB.
+- **Definition of done:** Protected admin dashboard with real aggregates.
+
+---
+
+### Phase 16 — Admin product management `[ ]`
+
+- **Objective:** Full product/category management UI on top of Phase 7 APIs.
+- **Main tasks:**
+  - Admin CRUD UI, image attach, inventory/status, validation.
+- **Files/modules likely involved:** `app/admin/products/**`, `app/admin/categories/**`, reuse Phase 7 APIs.
+- **Dependencies:** Phases 7 and 15.
+- **Verification/checkpoint:** Create/edit/unlist product; storefront reflects changes.
+- **Definition of done:** Admins can fully manage catalog from the UI.
+
+---
+
+### Phase 17 — Admin order management `[ ]`
+
+- **Objective:** Admin order listing, details, status updates.
+- **Main tasks:**
+  - List/filter orders; detail; allowed status transitions; audit who changed status.
+- **Files/modules likely involved:** `app/admin/orders/**`, `backend/**/admin/order/**`.
+- **Dependencies:** Phases 14–15.
+- **Verification/checkpoint:** Status change visible to customer tracking; illegal transitions rejected.
+- **Definition of done:** Admins can process orders without DB access.
+
+---
+
+### Phase 18 — Admin customer management `[ ]`
+
+- **Objective:** Customer listing and account/order information for admins.
+- **Main tasks:**
+  - Search/list customers; view profile, addresses, orders; no password hashes in API.
+  - Optional disable/lock account if in scope.
+- **Files/modules likely involved:** `app/admin/customers/**`, `backend/**/admin/customer/**`.
+- **Dependencies:** Phases 6, 14–15.
+- **Verification/checkpoint:** Admin views customer + orders; PII not over-exposed in logs.
+- **Definition of done:** Admin customer directory with linked orders.
+
+---
+
+### Phase 19 — IRAS branding/UI polish `[ ]`
+
+- **Objective:** Replace generic ecommerce/Next.js look with IRAS visual identity.
+- **Main tasks:**
+  - Tokens, typography, logo in `public/`, storefront and admin chrome.
+  - Metadata (`layout.tsx` title/description still “Create Next App” until this or Phase 8).
+- **Files/modules likely involved:** `app/globals.css`, `app/layout.tsx`, `public/` logos, shared components.
+- **Dependencies:** Phases 8 and 15 (surfaces exist to polish).
+- **Verification/checkpoint:** Key pages look on-brand; assets live in `public/`, not in source-as-public hacks.
+- **Definition of done:** IRAS identity applied across customer and admin UIs.
+
+---
+
+### Phase 20 — Validation and error handling `[ ]`
+
+- **Objective:** Consistent frontend + backend validation, API errors, loading/empty/error states.
+- **Main tasks:**
+  - Bean Validation / problem+json (or project standard) on APIs.
+  - Client: form errors, toasts, empty catalogs, 401/403/404/500 handling.
+- **Files/modules likely involved:** `backend/**/common/exception/**`, form components, `app` error/loading files if used.
+- **Dependencies:** Phases 5–18 (features exist to harden).
+- **Verification/checkpoint:** Invalid payloads return 400 with field errors; UI never shows raw stack traces.
+- **Definition of done:** Predictable errors and states on critical flows.
+
+---
+
+### Phase 21 — Security audit `[ ]`
+
+- **Objective:** Review JWT, refresh cookies, authorization, Razorpay verification, CORS, secrets, IDOR.
+- **Main tasks:**
+  - Access control on every mutating API; admin vs customer.
+  - Cookie flags; CSRF strategy if cookies are used cross-site.
+  - Razorpay signature/webhook authenticity; no secret keys in client.
+  - SQL injection (parameterized JPA), XSS, rate limit on auth/OTP.
+- **Files/modules likely involved:** security config, payment webhook, env files, Next.js proxy headers.
+- **Dependencies:** Phases 5, 13, 15–18, 20.
+- **Verification/checkpoint:** Checklist of threats with pass/fail; critical issues fixed.
+- **Definition of done:** Documented security review; critical findings resolved.
+
+---
+
+### Phase 22 — Testing `[ ]`
+
+- **Objective:** Backend unit/integration tests + frontend tests for critical flows.
+- **Main tasks:**
+  - Spring tests with testcontainers or test profile DB for auth, cart, checkout, payments (mocked Razorpay).
+  - Frontend: critical paths (login, catalog, cart, checkout) via chosen runner (add scripts to `package.json` — currently only `dev`/`build`/`start`/`lint`).
+- **Files/modules likely involved:** `backend/src/test/**`, new frontend test config, `package.json` scripts.
+- **Dependencies:** Phases 5–14 at minimum; 15–18 for admin tests.
+- **Verification/checkpoint:** CI-ready test commands green locally.
+- **Definition of done:** Automated coverage of happy paths + key negatives; `package.json` has test script(s).
+
+---
+
+### Phase 23 — Docker/containerization `[ ]`
+
+- **Objective:** Containerize frontend, backend, and PostgreSQL for local/dev parity.
+- **Main tasks:**
+  - Dockerfiles for Next.js and Spring Boot; `docker-compose.yml` with Postgres, Flyway on boot, env samples.
+  - Do not invent a `frontend/` context that copies the Next app into `public/`.
+- **Files/modules likely involved:** `Dockerfile` (root Next), `backend/Dockerfile`, `docker-compose.yml`, `.dockerignore`.
+- **Dependencies:** Phases 3–4, 2; ideally 22.
+- **Verification/checkpoint:** `docker compose up` serves app + API + DB; migrations apply.
+- **Definition of done:** Documented compose workflow for developers.
+
+---
+
+### Phase 24 — Production readiness `[ ]`
+
+- **Objective:** Env configuration, logging, migration strategy, deployment prep (no Kubernetes yet).
+- **Main tasks:**
+  - Prod profiles, secret management, structured logs, Flyway forward-only policy, backups note.
+  - Next.js production `npm run build` / `npm start`; Spring prod packaging.
+  - README beyond create-next-app boilerplate for IRAS run/deploy.
+- **Files/modules likely involved:** `application-prod.yml`, `next.config.ts`, `README.md`, logging config.
+- **Dependencies:** Phases 21–23.
+- **Verification/checkpoint:** Production build artifacts; env checklist; no secrets in Git.
+- **Definition of done:** Written production runbook; builds succeed with prod-like config.
+
+---
+
+### Phase 25 — Final deployment verification `[ ]`
+
+- **Objective:** End-to-end verification of a deployed (or production-like) IRAS stack.
+- **Main tasks:**
+  - Smoke: health, signup/OTP, browse, cart, checkout, Razorpay test, admin metrics.
+  - Confirm HTTPS, cookies, CORS, migrations on target env.
+  - Record gaps; Kubernetes remains a **follow-on** after this phase (`PROMPTS.md` Prompt 24).
+- **Files/modules likely involved:** deploy docs, compose/prod env, smoke checklist in Scratchpad.
+- **Dependencies:** Phase 24 (all prior phases).
+- **Verification/checkpoint:** Signed-off smoke checklist on the target environment.
+- **Definition of done:** IRAS is verified as deployable; remaining issues listed; no K8s required.
+
+---
+
+### Implementation notes for later prompts
+
+- Start each later prompt by reading this Scratchpad and marking the active phase in progress.
+- Preserve existing Next.js 16 / React 19 / Tailwind v4 / `app/` decisions.
+- Backend is new (`backend/`); do not convert Next.js into a BFF replacement for Spring unless a later prompt says so.
+- Payments: **Razorpay**, not Stripe. Auth: **OTP + JWT + HttpOnly refresh**, not assumed NextAuth (Lesson 3 is generic NextAuth guidance and may not apply).
+- After a phase: check its Definition of done, then mark the phase `[x]` in the checklist.
