@@ -5,22 +5,20 @@ spring:
   application:
     name: iras-backend
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/iras}
-    username: ${DATABASE_USERNAME:iras}
-    password: ${DATABASE_PASSWORD:}
+    url: ${DB_URL:${DATABASE_URL:jdbc:postgresql://localhost:5432/iras}}
+    username: ${DB_USERNAME:${DATABASE_USERNAME:postgres}}
+    password: ${DB_PASSWORD:${DATABASE_PASSWORD:}}
     hikari:
       initialization-fail-timeout: -1
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        boot:
-          allow_jdbc_metadata_access: false
   flyway:
-    enabled: ${FLYWAY_ENABLED:false}
+    enabled: ${FLYWAY_ENABLED:true}
 
 management:
   endpoints:
@@ -34,3 +32,14 @@ management:
 iras:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000}
+  jwt:
+    access-secret: ${JWT_ACCESS_SECRET:iras_default_dev_access_secret_key_at_least_32_chars_long!}
+    refresh-secret: ${JWT_REFRESH_SECRET:iras_default_dev_refresh_secret_key_at_least_32_chars_long!}
+    access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:900000}
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+  otp:
+    expiration-minutes: ${OTP_EXPIRATION_MINUTES:10}
+    max-attempts: ${OTP_MAX_ATTEMPTS:5}
+    expose-in-dev-response: ${OTP_EXPOSE_IN_DEV_RESPONSE:true}
+  security:
+    cookie-secure: ${COOKIE_SECURE:false}

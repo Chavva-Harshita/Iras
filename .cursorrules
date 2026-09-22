@@ -48,7 +48,7 @@
 - [x] Phase 1 — Existing project/setup inspection
 - [x] Phase 2 — Frontend foundation
 - [x] Phase 3 — Backend foundation
-- [ ] Phase 4 — Database setup and schema
+- [x] Phase 4 — Database setup and schema
 - [ ] Phase 5 — Authentication
 - [ ] Phase 6 — User profile and address management
 - [ ] Phase 7 — Product/catalog management
@@ -121,7 +121,7 @@ Kubernetes (`PROMPTS.md` Prompt 24) is **out of scope** until Phases 1–25 are 
 
 ---
 
-### Phase 4 — Database setup and schema `[ ]`
+### Phase 4 — Database setup and schema `[x]`
 
 - **Objective:** PostgreSQL + Flyway migrations + JPA entities/relationships for IRAS (users, addresses, categories, products, images, inventory, wishlist, cart, orders, payments).
 - **Main tasks:**
